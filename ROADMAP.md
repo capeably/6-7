@@ -5,8 +5,7 @@ Maintenance rules live in `CLAUDE.md` (§ROADMAP workflow): completed tasks are 
 (git history is the record), new tasks default to **P3**, and starting a task moves it to **Now**.
 
 ## Now
-- Build `index.html` — playable MVP per `GAME-DESIGN.md` (core loop, sets of 9, streaks,
-  67 Certified, stats, audio/haptics)
+_(nothing in progress)_
 
 ## Next
 _(nothing queued)_
