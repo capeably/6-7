@@ -5,7 +5,7 @@ Maintenance rules live in `CLAUDE.md` (§ROADMAP workflow): completed tasks are 
 (git history is the record), new tasks default to **P3**, and starting a task moves it to **Now**.
 
 ## Now
-- Explore: groups-of-3 clustering within sets (3 mockups) + post-set intuition tips system
+_(nothing in progress)_
 
 ## Next
 _(nothing queued)_
