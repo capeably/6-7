@@ -17,6 +17,7 @@
   --p6:#7A5CFF; --p6d:#5B3FE6; --p6soft:#A78BFF;
   --p7:#14B873; --p7d:#0B9159; --p7soft:#5CE0A8;
   --gold:#FFB42E; --goldd:#D98E00; --goldink:#523A00;
+  --p76:#E0564B; --p76d:#B43A31;
   --dotcol:rgba(42,33,64,.05);
   --disp:'Lilita One',ui-rounded,'Arial Rounded MT Bold',system-ui,sans-serif;
   --ui:'Baloo 2',ui-rounded,-apple-system,'Segoe UI',system-ui,sans-serif;
@@ -59,11 +60,30 @@ body{
 .iconbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ring)}
 .iconbtn svg{width:20px;height:20px}
 .setline{display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:14px;flex-shrink:0}
-.dots{display:flex;gap:7px}
-.dot{width:13px;height:13px;border-radius:50%;border:2.5px solid var(--miss);background:transparent}
-.dot.d6{background:var(--p6);border-color:var(--p6)}
-.dot.d7{background:var(--p7);border-color:var(--p7)}
-.dot.dx{background:var(--miss);border-color:var(--miss);opacity:.6}
+.ggrid{display:flex;flex-direction:column;gap:6px}
+.grow{display:flex;gap:6px;align-items:center}
+.gsp{width:20px}
+.gc{
+  width:min(9vw,4dvh,34px);aspect-ratio:1;border-radius:9px;
+  border:2.5px dashed var(--miss);display:flex;align-items:center;justify-content:center;
+  font-family:var(--disp);font-size:min(4.2vw,2dvh,16px);color:transparent;
+}
+.gc.cur{border-color:var(--muted)}
+.gc.h6{background:var(--p6);border:2.5px solid var(--p6);color:#fff}
+.gc.h7{background:var(--p7);border:2.5px solid var(--p7);color:#fff}
+.gc.mx{background:var(--miss);border:2.5px solid var(--miss);color:var(--bg)}
+.gc.lined{outline:3px solid var(--gold);outline-offset:1px}
+.gm{width:20px;text-align:center;font-size:17px;font-weight:800;opacity:0;transform:scale(.4);transition:transform .18s,opacity .18s}
+.gm.show{opacity:1;transform:none}
+.gm.star{color:var(--gold)}
+.gm.chk{color:var(--p7)}
+.gm.meh{color:var(--muted)}
+.gm.zero{color:var(--p76)}
+.ggrid.mini{gap:4px}
+.ggrid.mini .grow{gap:4px}
+.ggrid.mini .gc{width:22px;border-width:2px;border-radius:6px;font-size:11px}
+.ggrid.mini .gm,.ggrid.mini .gsp{width:14px;font-size:12px}
+.chip.c76{background:var(--p76);color:#fff;box-shadow:0 2px 0 var(--p76d)}
 .lbl{font-size:13px;font-weight:700;color:var(--muted)}
 .streakline{display:flex;align-items:center;justify-content:center;gap:10px;padding-top:12px;flex-shrink:0;height:40px}
 .streakline .fire{font-size:22px;transition:opacity .2s,filter .2s}
@@ -136,7 +156,8 @@ body{
 .verdictchip .chip.won{background:var(--p7);color:#fff;box-shadow:0 2px 0 var(--p7d);font-size:13px}
 .verdictchip .chip.lost{background:var(--panel);color:var(--muted);box-shadow:0 2px 0 var(--ring);font-size:13px}
 .luck{font-size:15px;font-weight:700;color:var(--muted);text-align:center;margin:0 auto 14px;max-width:280px;line-height:1.45}
-.sumdots{display:flex;gap:7px;justify-content:center;margin-bottom:14px}
+.sumwrap{display:flex;justify-content:center;margin-bottom:14px}
+.tipline{font-size:13.5px;font-style:italic;font-weight:600;color:var(--muted);text-align:center;margin:14px 4px 0;line-height:1.55}
 .srow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:10px 2px;border-bottom:2px solid var(--line);font-size:15px}
 .srow:last-of-type{border-bottom:0}
 .srow .k{color:var(--muted);font-weight:700}
@@ -166,6 +187,7 @@ body{
     <div class="brand"><span class="b6">6</span><span class="bd">·</span><span class="b7">7</span></div>
     <div class="sp"></div>
     <span id="certChip" class="chip" hidden>67 ✓</span>
+    <span id="chip76" class="chip c76" hidden>76</span>
     <button class="iconbtn" id="statsBtn" aria-label="stats">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 19V10M12 19V4M19 19v-6"/></svg>
     </button>
@@ -176,7 +198,7 @@ body{
   </div>
 
   <div class="setline">
-    <div class="dots" id="dots"></div>
+    <div class="ggrid" id="grid"></div>
     <div class="lbl" id="setLbl">set 1 · guess 1 of 9</div>
   </div>
 
@@ -203,12 +225,13 @@ body{
     <div class="bigscore" id="sumScore">0<span class="of">/9</span></div>
     <div class="verdictchip"><span class="chip lost" id="sumChip">set lost</span></div>
     <p class="luck" id="sumLuck"></p>
-    <div class="sumdots" id="sumDots"></div>
+    <div class="sumwrap"><div class="ggrid mini" id="sumGrid"></div></div>
     <div class="srow"><span class="k">best streak this set</span><span class="v" id="sumStreak">0</span></div>
     <div class="srow"><span class="k">⚡ fast taps (&lt;0.9s)</span><span class="v" id="sumFast">—</span></div>
     <div class="srow"><span class="k">🧠 slow taps</span><span class="v" id="sumSlow">—</span></div>
     <div class="srow"><span class="k">lifetime</span><span class="v" id="sumLife">—</span></div>
     <div class="srow"><span class="k">certification</span><span class="v" id="sumCert">—</span></div>
+    <p class="tipline" id="sumTip"></p>
     <button class="btnbig" id="nextBtn">next set</button>
     <button class="btnghost" id="sumStatsBtn">full stats</button>
   </div>
@@ -222,11 +245,13 @@ body{
     <div class="srow"><span class="k">best streak</span><span class="v" id="stBest">0</span></div>
     <div class="srow"><span class="k">sets won</span><span class="v" id="stSets">— <small>(luck wins ~25%)</small></span></div>
     <div class="srow"><span class="k">67 certified</span><span class="v" id="stCert">—</span></div>
+    <div class="srow"><span class="k">longest 67 run</span><span class="v" id="stCertBest">—</span></div>
+    <div class="srow"><span class="k">76 award</span><span class="v" id="st76">—</span></div>
     <div class="srow"><span class="k">⚡ gut (&lt;0.9s)</span><span class="v" id="stFast">—</span></div>
     <div class="srow"><span class="k">🧠 brain</span><span class="v" id="stSlow">—</span></div>
     <div class="srow"><span class="k">team 6</span><span class="v" id="stT6">—</span></div>
     <div class="srow"><span class="k">team 7</span><span class="v" id="stT7">—</span></div>
-    <p class="note">every flip is a true 50/50, generated before you tap.<br>maintain 67% over your last 10 sets to get certified.</p>
+    <p class="note">every flip is a true 50/50, generated before you tap.<br>maintain a 67% hit rate over your last 33 sets to get certified.<br>wrong 67% of the time instead? that's the 76 award.</p>
     <button class="btnbig" id="statCloseBtn">back to it</button>
     <button class="btnghost" id="wipeBtn">reset all data</button>
   </div>
@@ -241,11 +266,12 @@ const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const rnd=()=>{const a=new Uint8Array(1);crypto.getRandomValues(a);return(a[0]&1)?7:6};
 const pct=(h,n)=>n?Math.round(100*h/n)+'%':'—';
 
-const D={g:0,h:0,best:0,cur:0,setsP:0,setsW:0,last10:[],fast:{n:0,h:0},slow:{n:0,h:0},pk6:{n:0,h:0},pk7:{n:0,h:0},cert:false,certEver:false,muted:false};
+const D={g:0,h:0,best:0,cur:0,setsP:0,setsW:0,l33:[],fast:{n:0,h:0},slow:{n:0,h:0},pk6:{n:0,h:0},pk7:{n:0,h:0},cert:false,certEver:false,certRun:0,certBest:0,awd76:false,run76:0,best76:0,tipIdx:0,muted:false};
 let st;
 try{
   const j=JSON.parse(localStorage.getItem(KEY))||{};
-  st={...D,...j,fast:{...D.fast,...j.fast},slow:{...D.slow,...j.slow},pk6:{...D.pk6,...j.pk6},pk7:{...D.pk7,...j.pk7},last10:Array.isArray(j.last10)?j.last10:[]};
+  st={...D,...j,fast:{...D.fast,...j.fast},slow:{...D.slow,...j.slow},pk6:{...D.pk6,...j.pk6},pk7:{...D.pk7,...j.pk7},l33:Array.isArray(j.l33)?j.l33:(Array.isArray(j.last10)?j.last10:[])};
+  delete st.last10;
 }catch(e){st=JSON.parse(JSON.stringify(D));}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
 
@@ -277,23 +303,50 @@ const sWin=s=>tone(392*Math.pow(2,Math.min(s,12)/12),.13,'sine',.05);
 const sLose=()=>tone(140,.09,'triangle',.035);
 const sSet=()=>[523.25,659.25,783.99].forEach((f,i)=>tone(f,.14,'sine',.05,i*.085));
 const sCert=()=>[523.25,659.25,783.99,1046.5].forEach((f,i)=>tone(f,.18,'sine',.055,i*.11));
+const sStar=()=>[1046.5,1568].forEach((f,i)=>tone(f,.09,'sine',.045,.12+i*.07));
+const s76=()=>[392,311.13,246.94].forEach((f,i)=>tone(f,.16,'triangle',.045,i*.12));
 const vib=p=>{if(navigator.vibrate)navigator.vibrate(p)};
 
 let seq=[],idx=0,setHits=0,setBest=0,res=[],locked=false,lastTapAt=null,lastWinPick=0;
-let sFast={n:0,h:0},sSlow={n:0,h:0};
+let sFast={n:0,h:0},sSlow={n:0,h:0},seenLines=new Set(),pendingStar=false,pendingLine=false;
 let t1=0,t2=0,tT=0;
 
 const orb=$('orb'),orbNum=$('orbNum'),toastEl=$('toast'),subline=$('subline');
-const dotsEl=$('dots');
-for(let i=0;i<9;i++){const s=document.createElement('span');s.className='dot';dotsEl.appendChild(s);}
-const dots=[...dotsEl.children];
-
-function paintDots(){
+const LINES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+const MARK=[['✕','zero'],['–','meh'],['✓','chk'],['★','star']];
+function buildGrid(el){
+  el.innerHTML='';const cells=[],marks=[];
+  for(let r=0;r<3;r++){
+    const row=document.createElement('div');row.className='grow';
+    const sp=document.createElement('span');sp.className='gsp';row.appendChild(sp);
+    for(let c=0;c<3;c++){const s=document.createElement('span');s.className='gc';row.appendChild(s);cells.push(s);}
+    const m=document.createElement('span');m.className='gm';row.appendChild(m);marks.push(m);
+    el.appendChild(row);
+  }
+  return{cells,marks};
+}
+const mainGrid=buildGrid($('grid')),sumGridEl=buildGrid($('sumGrid'));
+function paintInto(g,arr,curIdx){
+  const lined=new Set();
+  LINES.forEach(L=>{if(L.every(i=>arr[i]&&arr[i].hit))L.forEach(i=>lined.add(i));});
   for(let i=0;i<9;i++){
-    const r=res[i];
-    dots[i].className='dot'+(r?(r.hit?(r.t===6?' d6':' d7'):' dx'):'');
+    const r=arr[i];let cl='gc';
+    if(r)cl+=r.hit?(r.t===6?' h6':' h7'):' mx';
+    else if(i===curIdx)cl+=' cur';
+    if(lined.has(i))cl+=' lined';
+    g.cells[i].className=cl;
+    g.cells[i].textContent=r?r.t:'';
+  }
+  for(let rw=0;rw<3;rw++){
+    const seg=arr.slice(rw*3,rw*3+3);
+    if(seg.length===3){
+      const h=seg.filter(x=>x.hit).length;
+      g.marks[rw].textContent=MARK[h][0];
+      g.marks[rw].className='gm show '+MARK[h][1];
+    }else{g.marks[rw].textContent='';g.marks[rw].className='gm';}
   }
 }
+function paintDots(){paintInto(mainGrid,res,idx);}
 function paintStreak(){
   $('streakN').textContent=st.cur;
   $('bestN').textContent=st.best;
@@ -302,7 +355,7 @@ function paintStreak(){
 function paintLbl(){
   $('setLbl').textContent=idx>=9?'set complete':`set ${st.setsP+1} · guess ${idx+1} of 9`;
 }
-function paintChip(){$('certChip').hidden=!st.cert;}
+function paintChip(){$('certChip').hidden=!st.cert;$('chip76').hidden=!st.awd76;}
 
 function toast(txt,cls){
   clearTimeout(tT);
@@ -357,7 +410,10 @@ function reveal(target,hit,rt,prevStreak,oldBest){
     if(hit){burst(target);sWin(st.cur);vib(st.cur>=3?[10,40,14]:12);}
     else{sLose();vib(26);}
     subline.textContent=rt==null?'…':'⚡ '+rt+' ms';
+    if(pendingLine)toast('line! bonus vision','t-gold');
     toastCheck(hit,target,prevStreak,oldBest);
+    if(pendingStar)sStar();
+    pendingStar=pendingLine=false;
   },70);
   t2=setTimeout(()=>{
     orbNum.textContent='?';
@@ -382,22 +438,51 @@ function pick(n){
   if(hit){st.h++;pk.h++;st.cur++;setHits++;if(st.cur>st.best)st.best=st.cur;if(st.cur>setBest)setBest=st.cur;}
   else st.cur=0;
   res.push({t:target,hit});
+  const rowH=idx%3===0?res.slice(idx-3,idx).filter(g=>g.hit).length:null;
+  LINES.forEach((L,li)=>{
+    if(!seenLines.has(li)&&L.every(i=>res[i]&&res[i].hit)){
+      seenLines.add(li);pendingStar=true;if(li>=3)pendingLine=true;
+    }
+  });
+  if(rowH===3)pendingStar=true;
   paintDots();paintStreak();paintLbl();
   reveal(target,hit,rt,prevStreak,oldBest);
   save();
   if(idx>=9){locked=true;setTimeout(openSummary,700);}
 }
 
+const TIPS=[
+  'trust the first flash. the second thought is just nerves with a vocabulary.',
+  'before you tap, notice whether you\'re guessing or knowing. no pressure — just notice.',
+  'exhale, soften your eyes, then pick.',
+  'picture the number inside the orb before you even look at the cards.',
+  'cold streak? guess what it won\'t be, then pick the other one.',
+  'don\'t chase the streak. the streak hates being watched.',
+  'your fastest taps know something. go check your gut stat.',
+  'stop trying to be right. try to be honest about what you feel.',
+  'some people say 6 feels round and 7 feels sharp. no, really. feel for it.',
+  'play one set with your eyes half closed. report back.',
+  'notice what a hit feels like the instant before you tap. collect that feeling.',
+  'bored? that\'s when scores sag. shake your hands out and come back.',
+  'don\'t count mid-set. the math will be there at the end.',
+  'wrong three in a row? congratulations — being reliably wrong is also a signal.'
+];
 function openSummary(){
   st.setsP++;
   const win=setHits>=6;
   if(win)st.setsW++;
-  st.last10.push(setHits);
-  if(st.last10.length>10)st.last10.shift();
-  const sum10=st.last10.reduce((a,b)=>a+b,0);
-  const wasCert=st.cert;
-  st.cert=st.last10.length>=10&&sum10>=60;
-  if(st.cert&&!st.certEver)st.certEver=true;
+  st.l33.push(setHits);
+  if(st.l33.length>33)st.l33.shift();
+  const n33=st.l33.length,sum33=st.l33.reduce((a,b)=>a+b,0),tot33=n33*9;
+  const wasCert=st.cert,was76=st.awd76;
+  st.cert=n33>=33&&sum33*3>=tot33*2;
+  st.awd76=n33>=33&&sum33*3<=tot33;
+  if(st.cert){st.certRun++;if(st.certRun>st.certBest)st.certBest=st.certRun;st.certEver=true;}
+  else st.certRun=0;
+  if(st.awd76){st.run76++;if(st.run76>st.best76)st.best76=st.run76;}
+  else st.run76=0;
+  $('sumTip').textContent='tip: '+TIPS[st.tipIdx%TIPS.length];
+  st.tipIdx++;
   save();paintChip();
 
   $('sumVerdict').textContent=win?(setHits===6?'you 6-7’d it!':setHits===7?'a lucky SEVEN':setHits===8?'EIGHT?!':'PERFECT SET 👁'):(setHits===5?'one short!':'run it back');
@@ -407,13 +492,17 @@ function openSummary(){
   chip.textContent=win?'SET WON ✓':'set lost';
   chip.className='chip '+(win?'won':'lost');
   $('sumLuck').textContent=LUCK[setHits];
-  $('sumDots').innerHTML=res.map(r=>`<span class="dot ${r.hit?(r.t===6?'d6':'d7'):'dx'}"></span>`).join('');
+  paintInto(sumGridEl,res,-1);
   $('sumStreak').textContent=setBest;
   $('sumFast').textContent=sFast.n?`${sFast.h}/${sFast.n}`:'—';
   $('sumSlow').textContent=sSlow.n?`${sSlow.h}/${sSlow.n}`:'—';
   $('sumLife').textContent=`${pct(st.h,st.g)} · sets ${st.setsW}/${st.setsP} · best ${st.best}`;
-  $('sumCert').textContent=st.cert?'67 CERTIFIED ✓':(st.last10.length>=10?`last 10 sets: ${pct(sum10,90)} — need 67%`:`${st.last10.length}/10 sets played`);
+  $('sumCert').textContent=st.cert?`67 CERTIFIED ✓ · ${st.certRun} set${st.certRun===1?'':'s'} strong`
+    :st.awd76?`76 AWARD 👁 · ${st.run76} set${st.run76===1?'':'s'}`
+    :n33>=33?`last 33: ${pct(sum33,tot33)} — need 67%`
+    :`${n33}/33 sets toward certification`;
   if(st.cert&&!wasCert){sCert();vib([16,70,16,70,32]);}
+  else if(st.awd76&&!was76){s76();vib([30,80,30]);}
   else if(win){sSet();vib([14,60,14,60,30]);}
   $('sumSheet').classList.add('show');
 }
@@ -422,6 +511,7 @@ function newSet(){
   seq=Array.from({length:9},rnd);
   idx=0;setHits=0;setBest=0;res=[];
   sFast={n:0,h:0};sSlow={n:0,h:0};
+  seenLines=new Set();pendingStar=false;pendingLine=false;
   lastTapAt=null;locked=false;
   orbNum.textContent='?';orb.className='orb';
   subline.textContent='can you feel it?';
@@ -433,8 +523,10 @@ function fillStats(){
   $('stHit').innerHTML=`${pct(st.h,st.g)} <small>(chance ≈ 50%)</small>`;
   $('stBest').textContent=st.best;
   $('stSets').innerHTML=`${st.setsW}/${st.setsP} <small>(luck wins ~25%)</small>`;
-  const sum10=st.last10.reduce((a,b)=>a+b,0);
-  $('stCert').textContent=st.cert?'CERTIFIED ✓':(st.last10.length>=10?`${pct(sum10,90)} — need 67%`:`${st.last10.length}/10 sets played`);
+  const n33=st.l33.length,sum33=st.l33.reduce((a,b)=>a+b,0);
+  $('stCert').textContent=st.cert?`CERTIFIED ✓ · ${st.certRun} sets`:(n33>=33?`${pct(sum33,n33*9)} — need 67%`:`${n33}/33 sets played`);
+  $('stCertBest').textContent=st.certBest?`${st.certBest} set${st.certBest===1?'':'s'}`:'—';
+  $('st76').textContent=st.awd76?`AWARDED 👁 · ${st.run76} sets (best ${st.best76})`:(st.best76?`best run: ${st.best76} sets`:(n33>=33?`wrong ${pct(n33*9-sum33,n33*9)} — need 67%`:`${n33}/33 sets played`));
   $('stFast').textContent=st.fast.n?`${pct(st.fast.h,st.fast.n)} (${st.fast.n} taps)`:'—';
   $('stSlow').textContent=st.slow.n?`${pct(st.slow.h,st.slow.n)} (${st.slow.n} taps)`:'—';
   const tot=st.pk6.n+st.pk7.n;

@@ -117,14 +117,33 @@ The threshold is the meme, and it's statistically honest: pure luck wins a set o
 
 Set summary also shows: best streak in set, ⚡gut vs 🧠brain split, lifetime strip, certification progress.
 
+### The grid — set visualization
+
+The set fills a **3×3 grid** in reading order; each row is a trio of guesses. Hit cells fill in
+the target's color (grape 6 / shamrock 7) with the number; missed cells dim gray showing what it
+was. The cell up next has a darker dashed border.
+- **Row markers** (right of each row, pop in when the trio completes):
+  ★ gold = 3/3 · ✓ shamrock = 2/3 · – muted = 1/3 · ✕ red = 0/3.
+- **Lines:** three hits in any row, column, or diagonal get a persistent gold outline; columns and
+  diagonals also fire a "line! bonus vision" toast. A 3/3 row is both a star and a line.
+- The summary sheet replays the set as a mini grid with the same markers.
+
 ### 67 Certified — the flagship achievement
 
-Maintain a **67%+ hit rate across your last 10 sets** (60+ of 90 guesses) and you are
-**67 CERTIFIED** — a *live status*, not a one-time trophy: it can lapse, and you can re-earn it.
-By pure chance a 10-set window certifies only ~0.08% of the time (≈ 1 in 1,300) — a legendary,
-statistically meaningful feat, and the rolling window gives dedicated players honest chances at it.
-UI: gold chip in the header while certified; progress meter in stats
-("last 10 sets: 58% — need 67%"; before 10 sets: "7/10 sets toward certification").
+Maintain a **67%+ hit rate on individual guesses across your last 33 sets** (≥2/3 of 297 guesses,
+i.e. 198+) and you are **67 CERTIFIED** — a *live status*: it can lapse and be re-earned.
+A **maintenance tracker** counts how many consecutive sets you've stayed certified
+("5 sets strong"), with the longest run recorded in stats.
+Honest math: a 33-set window certifies by pure luck ~5.7σ above chance — about 1 in 200 million.
+Certification is deliberately "the universe broke" tier.
+UI: gold chip in the header while certified; progress in stats ("last 33: 58% — need 67%").
+
+### The 76 award — reverse oracle certification
+
+The mirror image: a **67%+ *miss* rate over the last 33 sets** (≤99 hits of 297) earns the
+**76 AWARD** — being reliably wrong at this scale is exactly as anomalous as being reliably right
+(psi-missing, Rhine). Red chip in the header, its own maintenance run + best-run tracker, and a
+descending fanfare when earned.
 
 ---
 
@@ -262,3 +281,13 @@ beyond that. Export-as-JSON button (it's *their* psychic journal).
 6. **Aesthetic:** flat, colorful, fun — Gen-Alpha-friendly, adult-clean. Psychic framing subtle and
    informative ("can you feel it?"), never occult. Candy-flat palette: grape 6 vs shamrock 7 + gold.
 7. **Called Shots:** held for P2. MVP friction stays at zero.
+
+## 14. Decisions log (2026-06-12)
+
+1. **Grid visualization shipped:** sets render as a 3×3 grid (rows = trios) with row outcome
+   markers (★ 3/3 gold, ✓ 2/3, – 1/3, ✕ 0/3) and gold-outlined hit-lines (see §5).
+2. **Certification rebased to 33 sets**, judged on individual-guess hit rate (≥2/3), with a
+   consecutive-sets maintenance tracker (current + best).
+3. **76 award added** — the psi-missing mirror (≥2/3 miss rate over 33 sets), red chip, own tracker.
+4. **Intuition tips shipped:** one per set summary, rotating pool of 14, remote-viewing practices
+   in plain playful language ("trust the first flash…"). No jargon, no woo.
