@@ -15,7 +15,7 @@ feels genuinely spooky when it happens.
 2. **Honest** — fair RNG, pre-committed targets, real stats with chance baselines shown. No pity wins, no rigging. The spookiness must be earned.
 3. **Playful, lightly psychic** — flat, colorful, fun: something the generation that invented the
    6-7 meme would appreciate, and adults too. The intuition angle stays subtle and informative —
-   "can you feel it?" — never occult. The meme is seasoning (bouncing cards, 666/777 beats,
+   "can you feel it?" — never occult. The meme is seasoning (bouncing cards, lucky-7 beats,
    67% certification), not the whole dish.
 
 ---
@@ -73,7 +73,7 @@ machine; we need to *surface* the one that's already there.
 | 2 | 1/4 | Counter glow |
 | 3 | 1/8 | Color shift + bigger particle burst + haptic pattern |
 | 5 | 1/32 | Flame mode 🔥, screen edge glow |
-| 6 | 1/64 | **"666 — ominous."** easter egg beat |
+| 6 | 1/64 | **"sixth sense activated"** beat |
 | 7 | 1/128 | **"LUCKY 7s"** — jackpot-tier celebration, the game's signature moment |
 | 10 | 1/1024 | Full-screen flourish, permanent badge |
 
@@ -128,22 +128,29 @@ was. The cell up next has a darker dashed border.
   diagonals also fire a "line! bonus vision" toast. A 3/3 row is both a star and a line.
 - The summary sheet replays the set as a mini grid with the same markers.
 
-### 67 Certified — the flagship achievement
+### 67 Certified — tiered certification
 
-Maintain a **67%+ hit rate on individual guesses across your last 33 sets** (≥2/3 of 297 guesses,
-i.e. 198+) and you are **67 CERTIFIED** — a *live status*: it can lapse and be re-earned.
-A **maintenance tracker** counts how many consecutive sets you've stayed certified
-("5 sets strong"), with the longest run recorded in stats.
-Honest math: a 33-set window certifies by pure luck ~5.7σ above chance — about 1 in 200 million.
-Certification is deliberately "the universe broke" tier.
-UI: gold chip in the header while certified; progress in stats ("last 33: 58% — need 67%").
+Hold a **67%+ hit rate on individual guesses** (≥2/3) over a rolling window of recent sets.
+The window length sets the tier — your chip shows the highest tier you currently hold:
 
-### The 76 award — reverse oracle certification
+| Tier | Window | Hits needed | Odds by pure luck |
+|---|---|---|---|
+| **Bronze** | last 13 sets (6+7!) | 78+ of 117 | 1 in 5,048 |
+| **Silver** | last 15 | 90+ of 135 | 1 in 14,948 |
+| **Gold** | last 18 | 108+ of 162 | 1 in 75,097 |
+| **Platinum** | last 21 | 126+ of 189 | 1 in 372,590 |
+| **Nostradamus** | last 33 | 198+ of 297 | 1 in 209.5 million |
 
-The mirror image: a **67%+ *miss* rate over the last 33 sets** (≤99 hits of 297) earns the
-**76 AWARD** — being reliably wrong at this scale is exactly as anomalous as being reliably right
-(psi-missing, Rhine). Red chip in the header, its own maintenance run + best-run tracker, and a
-descending fanfare when earned.
+Certification is a *live status*: tiers lapse and re-earn as the windows roll. A **maintenance
+tracker** counts consecutive certified sets ("5 sets strong"); stats record the longest run and
+the best tier ever reached. Bronze is the attainable dream (a dedicated player's rolling windows
+give a real lifetime shot); Nostradamus stays "the universe broke" tier by design.
+
+### The 76 award — reverse oracle
+
+The mirror: a **67%+ *miss* rate over the last 13 sets** (≤39 hits of 117) earns the **76 AWARD**
+— being reliably wrong is exactly as anomalous as being reliably right (psi-missing, Rhine).
+Red chip, own run/best tracker, descending fanfare.
 
 ---
 
@@ -274,8 +281,8 @@ beyond that. Export-as-JSON button (it's *their* psychic journal).
 
 1. **Layout:** two-card design (6 and 7 as tap cards) with the orb in the middle showing the result.
 2. **Reveal:** orb burst. Full animation ~500ms; a next tap cuts it short instantly.
-3. **Meme integration — light:** cards idle-bounce in alternation (67 hand gesture); 666/777 streak
-   beats; "six… SEVEN!" easter egg; "is it 6th sense, or lucky 7?" as recurring flavor question.
+3. **Meme integration — light:** cards idle-bounce in alternation (67 hand gesture); sixth-sense
+   and lucky-7 streak beats; "six… SEVEN!" easter egg; "is it 6th sense, or lucky 7?" as flavor.
 4. **Sets of 9**, win at 6+ (6/9 = 67%). Stats accumulate lifetime.
 5. **67 Certified:** maintain ≥67% over last 10 sets (rolling). Flagship achievement.
 6. **Aesthetic:** flat, colorful, fun — Gen-Alpha-friendly, adult-clean. Psychic framing subtle and
@@ -291,3 +298,7 @@ beyond that. Export-as-JSON button (it's *their* psychic journal).
 3. **76 award added** — the psi-missing mirror (≥2/3 miss rate over 33 sets), red chip, own tracker.
 4. **Intuition tips shipped:** one per set summary, rotating pool of 14, remote-viewing practices
    in plain playful language ("trust the first flash…"). No jargon, no woo.
+5. **Tiered certification (2026-06-12):** Bronze 13 sets (6+7) → Silver 15 → Gold 18 →
+   Platinum 21 → Nostradamus 33; 76 award rebased to the 13-set window.
+6. **Hard content rule: no "666" or satanic/occult imagery anywhere** — copy, badges, easter
+   eggs. The streak-6 beat is "sixth sense activated," never devil references.

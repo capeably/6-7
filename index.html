@@ -84,6 +84,11 @@ body{
 .ggrid.mini .gc{width:22px;border-width:2px;border-radius:6px;font-size:11px}
 .ggrid.mini .gm,.ggrid.mini .gsp{width:14px;font-size:12px}
 .chip.c76{background:var(--p76);color:#fff;box-shadow:0 2px 0 var(--p76d)}
+.chip.t1{background:#C97B3D;color:#fff;box-shadow:0 2px 0 #99592B}
+.chip.t2{background:#AEB6BF;color:#262B33;box-shadow:0 2px 0 #828B95}
+.chip.t3{background:var(--gold);color:var(--goldink);box-shadow:0 2px 0 var(--goldd)}
+.chip.t4{background:#8FE0DB;color:#0B4F4A;box-shadow:0 2px 0 #57B5AE}
+.chip.t5{background:var(--p6);color:#fff;box-shadow:0 2px 0 var(--p6d)}
 .lbl{font-size:13px;font-weight:700;color:var(--muted)}
 .streakline{display:flex;align-items:center;justify-content:center;gap:10px;padding-top:12px;flex-shrink:0;height:40px}
 .streakline .fire{font-size:22px;transition:opacity .2s,filter .2s}
@@ -245,13 +250,13 @@ body{
     <div class="srow"><span class="k">best streak</span><span class="v" id="stBest">0</span></div>
     <div class="srow"><span class="k">sets won</span><span class="v" id="stSets">— <small>(luck wins ~25%)</small></span></div>
     <div class="srow"><span class="k">67 certified</span><span class="v" id="stCert">—</span></div>
-    <div class="srow"><span class="k">longest 67 run</span><span class="v" id="stCertBest">—</span></div>
+    <div class="srow"><span class="k">best cert · longest run</span><span class="v" id="stCertBest">—</span></div>
     <div class="srow"><span class="k">76 award</span><span class="v" id="st76">—</span></div>
     <div class="srow"><span class="k">⚡ gut (&lt;0.9s)</span><span class="v" id="stFast">—</span></div>
     <div class="srow"><span class="k">🧠 brain</span><span class="v" id="stSlow">—</span></div>
     <div class="srow"><span class="k">team 6</span><span class="v" id="stT6">—</span></div>
     <div class="srow"><span class="k">team 7</span><span class="v" id="stT7">—</span></div>
-    <p class="note">every flip is a true 50/50, generated before you tap.<br>maintain a 67% hit rate over your last 33 sets to get certified.<br>wrong 67% of the time instead? that's the 76 award.</p>
+    <p class="note">every flip is a true 50/50, generated before you tap.<br>hold a 67% hit rate over your last 13 sets for bronze certification —<br>15 silver · 18 gold · 21 platinum · 33 nostradamus.<br>wrong 67% of the time instead? that's the 76 award.</p>
     <button class="btnbig" id="statCloseBtn">back to it</button>
     <button class="btnghost" id="wipeBtn">reset all data</button>
   </div>
@@ -266,7 +271,9 @@ const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const rnd=()=>{const a=new Uint8Array(1);crypto.getRandomValues(a);return(a[0]&1)?7:6};
 const pct=(h,n)=>n?Math.round(100*h/n)+'%':'—';
 
-const D={g:0,h:0,best:0,cur:0,setsP:0,setsW:0,l33:[],fast:{n:0,h:0},slow:{n:0,h:0},pk6:{n:0,h:0},pk7:{n:0,h:0},cert:false,certEver:false,certRun:0,certBest:0,awd76:false,run76:0,best76:0,tipIdx:0,muted:false};
+const D={g:0,h:0,best:0,cur:0,setsP:0,setsW:0,l33:[],fast:{n:0,h:0},slow:{n:0,h:0},pk6:{n:0,h:0},pk7:{n:0,h:0},cert:false,certEver:false,certRun:0,certBest:0,tier:0,bestTier:0,awd76:false,run76:0,best76:0,tipIdx:0,muted:false};
+const TIERS=[[13,'bronze'],[15,'silver'],[18,'gold'],[21,'platinum'],[33,'nostradamus']];
+const TIERCHIP=['','67 BRONZE','67 SILVER','67 GOLD','67 PLATINUM','NOSTRADAMUS 👁'];
 let st;
 try{
   const j=JSON.parse(localStorage.getItem(KEY))||{};
@@ -355,7 +362,20 @@ function paintStreak(){
 function paintLbl(){
   $('setLbl').textContent=idx>=9?'set complete':`set ${st.setsP+1} · guess ${idx+1} of 9`;
 }
-function paintChip(){$('certChip').hidden=!st.cert;$('chip76').hidden=!st.awd76;}
+const sumLast=k=>st.l33.slice(-k).reduce((a,b)=>a+b,0);
+function tierOf(){
+  for(let i=TIERS.length-1;i>=0;i--){
+    const N=TIERS[i][0];
+    if(st.l33.length>=N&&sumLast(N)>=6*N)return i+1;
+  }
+  return 0;
+}
+function paintChip(){
+  const c=$('certChip');
+  c.hidden=!st.tier;
+  if(st.tier){c.className='chip t'+st.tier;c.textContent=TIERCHIP[st.tier];}
+  $('chip76').hidden=!st.awd76;
+}
 
 function toast(txt,cls){
   clearTimeout(tT);
@@ -387,7 +407,7 @@ function toastCheck(hit,target,prevStreak,oldBest){
     const c=st.cur;
     if(c===3)toast('warming up…');
     else if(c===5)toast('on fire 🔥','t-gold');
-    else if(c===6)toast('666 😈 …or sixth sense?','t-grape');
+    else if(c===6)toast('sixth sense activated ✨','t-grape');
     else if(c===7)toast('LUCKY 7s 🍀','t-sham');
     else if(c===9)toast('NINE in a row ⚡','t-gold');
     else if(c===12)toast('the orb fears you 👁','t-gold');
@@ -473,10 +493,12 @@ function openSummary(){
   if(win)st.setsW++;
   st.l33.push(setHits);
   if(st.l33.length>33)st.l33.shift();
-  const n33=st.l33.length,sum33=st.l33.reduce((a,b)=>a+b,0),tot33=n33*9;
-  const wasCert=st.cert,was76=st.awd76;
-  st.cert=n33>=33&&sum33*3>=tot33*2;
-  st.awd76=n33>=33&&sum33*3<=tot33;
+  const n33=st.l33.length;
+  const wasTier=st.tier,was76=st.awd76;
+  st.tier=tierOf();
+  st.cert=st.tier>0;
+  if(st.tier>st.bestTier)st.bestTier=st.tier;
+  st.awd76=n33>=13&&sumLast(13)<=39;
   if(st.cert){st.certRun++;if(st.certRun>st.certBest)st.certBest=st.certRun;st.certEver=true;}
   else st.certRun=0;
   if(st.awd76){st.run76++;if(st.run76>st.best76)st.best76=st.run76;}
@@ -497,11 +519,11 @@ function openSummary(){
   $('sumFast').textContent=sFast.n?`${sFast.h}/${sFast.n}`:'—';
   $('sumSlow').textContent=sSlow.n?`${sSlow.h}/${sSlow.n}`:'—';
   $('sumLife').textContent=`${pct(st.h,st.g)} · sets ${st.setsW}/${st.setsP} · best ${st.best}`;
-  $('sumCert').textContent=st.cert?`67 CERTIFIED ✓ · ${st.certRun} set${st.certRun===1?'':'s'} strong`
+  $('sumCert').textContent=st.tier?`67 ${TIERS[st.tier-1][1].toUpperCase()} ✓ · ${st.certRun} set${st.certRun===1?'':'s'} strong`
     :st.awd76?`76 AWARD 👁 · ${st.run76} set${st.run76===1?'':'s'}`
-    :n33>=33?`last 33: ${pct(sum33,tot33)} — need 67%`
-    :`${n33}/33 sets toward certification`;
-  if(st.cert&&!wasCert){sCert();vib([16,70,16,70,32]);}
+    :n33>=13?`last 13: ${pct(sumLast(13),117)} — need 67% for bronze`
+    :`${n33}/13 sets toward bronze`;
+  if(st.tier>wasTier){sCert();vib([16,70,16,70,32]);}
   else if(st.awd76&&!was76){s76();vib([30,80,30]);}
   else if(win){sSet();vib([14,60,14,60,30]);}
   $('sumSheet').classList.add('show');
@@ -523,10 +545,10 @@ function fillStats(){
   $('stHit').innerHTML=`${pct(st.h,st.g)} <small>(chance ≈ 50%)</small>`;
   $('stBest').textContent=st.best;
   $('stSets').innerHTML=`${st.setsW}/${st.setsP} <small>(luck wins ~25%)</small>`;
-  const n33=st.l33.length,sum33=st.l33.reduce((a,b)=>a+b,0);
-  $('stCert').textContent=st.cert?`CERTIFIED ✓ · ${st.certRun} sets`:(n33>=33?`${pct(sum33,n33*9)} — need 67%`:`${n33}/33 sets played`);
-  $('stCertBest').textContent=st.certBest?`${st.certBest} set${st.certBest===1?'':'s'}`:'—';
-  $('st76').textContent=st.awd76?`AWARDED 👁 · ${st.run76} sets (best ${st.best76})`:(st.best76?`best run: ${st.best76} sets`:(n33>=33?`wrong ${pct(n33*9-sum33,n33*9)} — need 67%`:`${n33}/33 sets played`));
+  const n33=st.l33.length;
+  $('stCert').textContent=st.tier?`${TIERS[st.tier-1][1].toUpperCase()} ✓ · ${st.certRun} set${st.certRun===1?'':'s'}`:(n33>=13?`last 13: ${pct(sumLast(13),117)} — need 67%`:`${n33}/13 sets played`);
+  $('stCertBest').textContent=st.bestTier?`${TIERS[st.bestTier-1][1]} · ${st.certBest} set${st.certBest===1?'':'s'}`:'—';
+  $('st76').textContent=st.awd76?`AWARDED 👁 · ${st.run76} sets (best ${st.best76})`:(st.best76?`best run: ${st.best76} sets`:(n33>=13?`wrong ${pct(n33*9-sumLast(n33),n33*9)} — need 67%`:`${n33}/13 sets played`));
   $('stFast').textContent=st.fast.n?`${pct(st.fast.h,st.fast.n)} (${st.fast.n} taps)`:'—';
   $('stSlow').textContent=st.slow.n?`${pct(st.slow.h,st.slow.n)} (${st.slow.n} taps)`:'—';
   const tot=st.pk6.n+st.pk7.n;
@@ -564,6 +586,7 @@ $('wipeBtn').addEventListener('click',()=>{
 function setMuteIcon(){$('icoOn').hidden=st.muted;$('icoOff').hidden=!st.muted;}
 $('muteBtn').addEventListener('click',()=>{st.muted=!st.muted;save();setMuteIcon();});
 
+st.tier=tierOf();st.cert=st.tier>0;st.awd76=st.l33.length>=13&&sumLast(13)<=39;
 setMuteIcon();paintChip();newSet();
 })();
 </script>
