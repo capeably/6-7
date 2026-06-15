@@ -331,14 +331,10 @@ function mallet(freq,vol,when){
     });
   }catch(e){}
 }
-const PENTA=[0,2,4,7,9]; // major pentatonic — every note lands consonant
-function scaleHz(deg){const o=Math.floor(deg/5),s=PENTA[((deg%5)+5)%5];return 261.63*Math.pow(2,(s+12*o)/12);}
-// 6 and 7 sit a major third apart; the streak walks the note up the pentatonic ladder.
-const sWin=(streak,num)=>{
-  let f=scaleHz(Math.min((streak||1)-1,9));
-  if(num===7)f*=Math.pow(2,4/12); // major third up for a lucky 7
-  mallet(f,.5);
-};
+// Each number has ONE fixed voice: 6 is always C4, 7 is always its major third (E4).
+// You learn the two pitches by ear, so the sound itself tells you which way it fell.
+const HZ6=261.63, HZ7=HZ6*Math.pow(2,4/12);
+const sWin=(streak,num)=>mallet(num===7?HZ7:HZ6,.5);
 const sLose=()=>tone(140,.09,'triangle',.035);
 const sSet=()=>[523.25,659.25,783.99].forEach((f,i)=>tone(f,.14,'sine',.05,i*.085));
 const sCert=()=>[523.25,659.25,783.99,1046.5].forEach((f,i)=>tone(f,.18,'sine',.055,i*.11));
