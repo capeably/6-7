@@ -59,6 +59,11 @@ body{
 }
 .iconbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ring)}
 .iconbtn svg{width:20px;height:20px}
+.iconbtn .ic-off{display:none}
+.iconbtn.muted{background:var(--p76);color:#fff;box-shadow:0 3px 0 var(--p76d)}
+.iconbtn.muted:active{box-shadow:0 1px 0 var(--p76d)}
+.iconbtn.muted .ic-on{display:none}
+.iconbtn.muted .ic-off{display:block}
 .setline{display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:14px;flex-shrink:0}
 .ggrid{display:flex;flex-direction:column;gap:6px}
 .grow{display:flex;gap:6px;align-items:center}
@@ -196,9 +201,9 @@ body{
     <button class="iconbtn" id="statsBtn" aria-label="stats">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 19V10M12 19V4M19 19v-6"/></svg>
     </button>
-    <button class="iconbtn" id="muteBtn" aria-label="sound">
-      <svg id="icoOn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" stroke="none"/><path d="M16.5 8.5a5 5 0 010 7"/></svg>
-      <svg id="icoOff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" hidden><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" stroke="none"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg>
+    <button class="iconbtn" id="muteBtn" aria-label="sound on" aria-pressed="false">
+      <svg class="ic-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" stroke="none"/><path d="M16.5 8.5a5 5 0 010 7"/><path d="M19.5 6a9 9 0 010 12"/></svg>
+      <svg class="ic-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" stroke="none"/><path d="M17 9.5l4.5 5M21.5 9.5l-4.5 5"/></svg>
     </button>
   </div>
 
@@ -306,7 +311,34 @@ function tone(f,dur,type,vol,when){
     o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+dur+.03);
   }catch(e){}
 }
-const sWin=s=>tone(392*Math.pow(2,Math.min(s,12)/12),.13,'sine',.05);
+// Marimba/gamelan mallet: humans are musical — sustained, resonant tones to help
+// the player drop into a feeling state. A struck note: fast attack, long bell decay,
+// fundamental + inharmonic partials for that wooden/metallic mallet timbre.
+function mallet(freq,vol,when){
+  if(!AC||st.muted)return;
+  try{
+    const t=AC.currentTime+(when||0);
+    const env=AC.createGain();
+    env.gain.setValueAtTime(.0001,t);
+    env.gain.exponentialRampToValueAtTime(vol,t+.006);   // sharp mallet attack
+    env.gain.exponentialRampToValueAtTime(.0004,t+1.25); // long resonant tail
+    env.connect(AC.destination);
+    // [harmonic multiple, relative amplitude] — fundamental, marimba 4th, faint shimmer
+    [[1,1],[2.01,.18],[4,.22],[9.4,.06]].forEach(([m,a])=>{
+      const o=AC.createOscillator(),g=AC.createGain();
+      o.type='sine';o.frequency.value=freq*m;g.gain.value=a;
+      o.connect(g);g.connect(env);o.start(t);o.stop(t+1.35);
+    });
+  }catch(e){}
+}
+const PENTA=[0,2,4,7,9]; // major pentatonic — every note lands consonant
+function scaleHz(deg){const o=Math.floor(deg/5),s=PENTA[((deg%5)+5)%5];return 261.63*Math.pow(2,(s+12*o)/12);}
+// 6 and 7 sit a major third apart; the streak walks the note up the pentatonic ladder.
+const sWin=(streak,num)=>{
+  let f=scaleHz(Math.min((streak||1)-1,9));
+  if(num===7)f*=Math.pow(2,4/12); // major third up for a lucky 7
+  mallet(f,.5);
+};
 const sLose=()=>tone(140,.09,'triangle',.035);
 const sSet=()=>[523.25,659.25,783.99].forEach((f,i)=>tone(f,.14,'sine',.05,i*.085));
 const sCert=()=>[523.25,659.25,783.99,1046.5].forEach((f,i)=>tone(f,.18,'sine',.055,i*.11));
@@ -427,7 +459,7 @@ function reveal(target,hit,rt,prevStreak,oldBest){
   t1=setTimeout(()=>{
     orbNum.textContent=target;
     orb.classList.add(hit?(target===6?'win6':'win7'):'lose');
-    if(hit){burst(target);sWin(st.cur);vib(st.cur>=3?[10,40,14]:12);}
+    if(hit){burst(target);sWin(st.cur,target);vib(st.cur>=3?[10,40,14]:12);}
     else{sLose();vib(26);}
     subline.textContent=rt==null?'…':'⚡ '+rt+' ms';
     if(pendingLine)toast('line! bonus vision','t-gold');
@@ -583,8 +615,16 @@ $('wipeBtn').addEventListener('click',()=>{
   paintChip();newSet();
 });
 
-function setMuteIcon(){$('icoOn').hidden=st.muted;$('icoOff').hidden=!st.muted;}
-$('muteBtn').addEventListener('click',()=>{st.muted=!st.muted;save();setMuteIcon();});
+function setMuteIcon(){
+  const b=$('muteBtn');
+  b.classList.toggle('muted',st.muted);
+  b.setAttribute('aria-pressed',st.muted?'true':'false');
+  b.setAttribute('aria-label',st.muted?'sound off':'sound on');
+}
+$('muteBtn').addEventListener('click',()=>{
+  st.muted=!st.muted;save();setMuteIcon();
+  if(!st.muted){unlock();sWin(3,7);}
+});
 
 st.tier=tierOf();st.cert=st.tier>0;st.awd76=st.l33.length>=13&&sumLast(13)<=39;
 setMuteIcon();paintChip();newSet();
